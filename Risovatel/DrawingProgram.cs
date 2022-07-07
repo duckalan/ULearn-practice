@@ -2,91 +2,151 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-
 namespace RefactorMe
 {
-    class Risovatel
+    static class Painter
     {
         static float x, y;
-        static Graphics grafika;
+        private static Graphics s_graphics;
 
-        public static void Initialization ( Graphics novayaGrafika )
+        public static void Initialize(Graphics newGraphics)
         {
-            grafika = novayaGrafika;
-            grafika.SmoothingMode = SmoothingMode.None;
-            grafika.Clear(Color.Black);
+            s_graphics = newGraphics;
+            s_graphics.SmoothingMode = SmoothingMode.None;
+            s_graphics.Clear(Color.Black);
         }
 
-        public static void set_position(float x0, float y0)
-        {x = x0; y = y0;}
-
-        public static void makeIt(Pen ruchka, double dlina, double ugol)
+        public static void SetInitialPosition(float x0, float y0)
         {
-        //Делает шаг длиной dlina в направлении ugol и рисует пройденную траекторию
-        var x1 = (float)(x + dlina * Math.Cos(ugol));
-        var y1 = (float)(y + dlina * Math.Sin(ugol));
-        grafika.DrawLine(ruchka, x, y, x1, y1);
-        x = x1;
-        y = y1;
+            x = x0;
+            y = y0;
         }
 
-        public static void Change(double dlina, double ugol)
+        /// <summary>
+        /// Рисует линию указанных цвета и длины, в указанном направлении в радианах.
+        /// </summary>
+        /// <param name="length">Длина линии.</param>
+        /// <param name="directionAngleRadians">Угол направления линии в радианах.</param>
+        public static void DrawLine(Pen pen, double length, double directionAngleRadians)
         {
-            x = (float)(x + dlina * Math.Cos(ugol)); 
-           y = (float)(y + dlina * Math.Sin(ugol));
-           }
+            //Делает шаг длиной length в направлении angle и рисует пройденную траекторию.
+            var x1 = (float)(x + length * Math.Cos(directionAngleRadians));
+            var y1 = (float)(y + length * Math.Sin(directionAngleRadians));
+
+            s_graphics.DrawLine(pen, x, y, x1, y1);
+            x = x1;
+            y = y1;
+        }
+        /// <summary>
+        /// Меняет начальную позицию посредством перемещения линией из текущей позиции в нужную точку.
+        /// </summary>
+        /// <param name="length">Длина линии.</param>
+        /// <param name="directionAngleRadians">Угол направления линии в радианах.</param>
+        public static void ChangeCurrentPosition(double length, double directionAngleRadians)
+        {
+            x = (float)(x + length * Math.Cos(directionAngleRadians));
+            y = (float)(y + length * Math.Sin(directionAngleRadians));
+        }
     }
 
-    public class ImpossibleSquare
+    public static class ImpossibleSquare
     {
-        public static void Draw(int shirina, int visota, double ugolPovorota, Graphics grafika)
+        private static readonly double SqrtOfTwo = Math.Sqrt(2);
+        private static readonly double HalfPI = Math.PI / 2;
+        private static readonly double QuarterPI = Math.PI / 4;
+        private static readonly double PI = Math.PI;
+        const float LengthСoefficient = 0.375f;
+        const float WidthCoefficient = 0.04f;
+
+        /// <summary>
+        /// Используется для обозначения стороны квадрата, которую нужно нарисовать.
+        /// </summary>
+        enum Side
         {
-            // ugolPovorota пока не используется, но будет использоваться в будущем
-            Risovatel.Initialization(grafika);
+            TopSide,
+            LeftSide,
+            BottomSide,
+            RightSide
+        }
 
-            var sz = Math.Min(shirina, visota);
+        /// <summary>
+        /// Рисует квадрат в окне.
+        /// </summary>
+        /// <param name="screenWidth">Ширина окна.</param>
+        /// <param name="screenHeight">Высота окна.</param>
+        public static void Draw(int screenWidth, int screenHeight, double rotationAngle, Graphics graphics)
+        {
+            // rotationAngle пока не используется, но будет использоваться в будущем.
+            Painter.Initialize(graphics);
 
-            var diagonal_length = Math.Sqrt(2) * (sz * 0.375f + sz * 0.04f) / 2;
-            var x0 = (float)(diagonal_length * Math.Cos(Math.PI / 4 + Math.PI)) + shirina / 2f;
-            var y0 = (float)(diagonal_length * Math.Sin(Math.PI / 4 + Math.PI)) + visota / 2f;
+            // Как лучше это назвать? (sz)
+            int sizeСoefficient = Math.Min(screenWidth, screenHeight);
 
-            Risovatel.set_position(x0, y0);
+            CenterSquare(screenWidth, screenHeight, sizeСoefficient);
 
-            //Рисуем 1-ую сторону
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f, 0);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.04f * Math.Sqrt(2), Math.PI / 4);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f, Math.PI);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f - sz * 0.04f, Math.PI / 2);
+            // Рисуем верхнюю сторону.
+            DrawSide(Pens.Yellow, Side.TopSide, sizeСoefficient);
+            // Рисуем левую сторону.
+            DrawSide(Pens.Yellow, Side.LeftSide, sizeСoefficient);
+            // Рисуем нижнюю сторону.
+            DrawSide(Pens.Yellow, Side.BottomSide, sizeСoefficient);
+            // Рисуем правую сторону.
+            DrawSide(Pens.Yellow, Side.RightSide, sizeСoefficient);
+        }
 
-            Risovatel.Change(sz * 0.04f, -Math.PI);
-            Risovatel.Change(sz * 0.04f * Math.Sqrt(2), 3 * Math.PI / 4);
+        /// <summary>
+        /// Центрирует квадрат в окне.
+        /// </summary>
+        /// <param name="screenWidth">Ширина окна.</param>
+        /// <param name="screenHeight">Высота окна.</param>
+        static void CenterSquare(int screenWidth, int screenHeight, int sizeСoefficient)
+        {
+            double diagonalLength =
+                SqrtOfTwo * (sizeСoefficient * LengthСoefficient + sizeСoefficient * WidthCoefficient) / 2;
+            var x0 = (float)(diagonalLength * Math.Cos(QuarterPI + PI)) + screenWidth / 2f;
+            var y0 = (float)(diagonalLength * Math.Sin(QuarterPI + PI)) + screenHeight / 2f;
 
-            //Рисуем 2-ую сторону
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f, -Math.PI / 2);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.04f * Math.Sqrt(2), -Math.PI / 2 + Math.PI / 4);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f, -Math.PI / 2 + Math.PI);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f - sz * 0.04f, -Math.PI / 2 + Math.PI / 2);
+            Painter.SetInitialPosition(x0, y0);
+        }
 
-            Risovatel.Change(sz * 0.04f, -Math.PI / 2 - Math.PI);
-            Risovatel.Change(sz * 0.04f * Math.Sqrt(2), -Math.PI / 2 + 3 * Math.PI / 4);
+        static double SwitchSide(Side side)
+        {
+            switch (side)
+            {
+                case Side.TopSide:
+                    return 0;
+                case Side.LeftSide:
+                    return -HalfPI;
+                case Side.BottomSide:
+                    return PI;
+                case Side.RightSide:
+                    return HalfPI;
+                default:
+                    return 0;
+            }
+        }
 
-            //Рисуем 3-ю сторону
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f, Math.PI);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.04f * Math.Sqrt(2), Math.PI + Math.PI / 4);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f, Math.PI + Math.PI);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f - sz * 0.04f, Math.PI + Math.PI / 2);
+        // Временное решение
+        static void DrawSide(Pen color, Side side, int sizeСoefficient)
+        {
+            // Длина внешних линий.
+            float externalLineLength = sizeСoefficient * LengthСoefficient;
+            // Ширина между линиями.
+            float widthBetweenLines = sizeСoefficient * WidthCoefficient;
+            // Длина малых повёрнутых под углом линий.
+            double rotatedLineLength = widthBetweenLines * SqrtOfTwo;
+            // Длина внутренних линий, образующий чистый квадрат.
+            double internalLineLength = externalLineLength - widthBetweenLines;
+            // Отвечает за поворты.
+            double supportingAngleRadians = SwitchSide(side);
 
-            Risovatel.Change(sz * 0.04f, Math.PI - Math.PI);
-            Risovatel.Change(sz * 0.04f * Math.Sqrt(2), Math.PI + 3 * Math.PI / 4);
+            Painter.DrawLine(color, externalLineLength, supportingAngleRadians);
+            Painter.DrawLine(color, rotatedLineLength, QuarterPI + supportingAngleRadians);
+            Painter.DrawLine(color, externalLineLength, PI + supportingAngleRadians);
+            Painter.DrawLine(color, internalLineLength, HalfPI + supportingAngleRadians);
 
-            //Рисуем 4-ую сторону
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f, Math.PI / 2);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.04f * Math.Sqrt(2), Math.PI / 2 + Math.PI / 4);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f, Math.PI / 2 + Math.PI);
-            Risovatel.makeIt(Pens.Yellow, sz * 0.375f - sz * 0.04f, Math.PI / 2 + Math.PI / 2);
-
-            Risovatel.Change(sz * 0.04f, Math.PI / 2 - Math.PI);
-            Risovatel.Change(sz * 0.04f * Math.Sqrt(2), Math.PI / 2 + 3 * Math.PI / 4);
+            Painter.ChangeCurrentPosition(widthBetweenLines, -PI + supportingAngleRadians);
+            Painter.ChangeCurrentPosition(rotatedLineLength, 3 * QuarterPI + supportingAngleRadians);
         }
     }
 }
