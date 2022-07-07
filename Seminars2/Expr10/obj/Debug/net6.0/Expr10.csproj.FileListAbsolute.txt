@@ -1,0 +1,15 @@
+E:\Programming\ULearn Practice\Seminars2\Expr10\bin\Debug\net6.0\Expr10.exe
+E:\Programming\ULearn Practice\Seminars2\Expr10\bin\Debug\net6.0\Expr10.deps.json
+E:\Programming\ULearn Practice\Seminars2\Expr10\bin\Debug\net6.0\Expr10.runtimeconfig.json
+E:\Programming\ULearn Practice\Seminars2\Expr10\bin\Debug\net6.0\Expr10.dll
+E:\Programming\ULearn Practice\Seminars2\Expr10\bin\Debug\net6.0\Expr10.pdb
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\Expr10.csproj.AssemblyReference.cache
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\Expr10.GeneratedMSBuildEditorConfig.editorconfig
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\Expr10.AssemblyInfoInputs.cache
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\Expr10.AssemblyInfo.cs
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\Expr10.csproj.CoreCompileInputs.cache
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\Expr10.dll
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\refint\Expr10.dll
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\Expr10.pdb
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\Expr10.genruntimeconfig.cache
+E:\Programming\ULearn Practice\Seminars2\Expr10\obj\Debug\net6.0\ref\Expr10.dll
